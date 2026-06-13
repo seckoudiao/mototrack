@@ -104,11 +104,15 @@ class PositionCreateAPIView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
+        vitesse = data.get("vitesse")
+        if vitesse is None:
+            vitesse = 0
+
         position = PositionGPS.objects.create(
             moto=moto,
             latitude=data["latitude"],
             longitude=data["longitude"],
-            vitesse=data.get("vitesse", 0),
+            vitesse=vitesse,
         )
         mission = Mission.objects.filter(moto=moto, statut="en_cours").first()
 

@@ -2,12 +2,12 @@
 #include <HTTPClient.h>
 
 // Exemple simple: remplacez ces valeurs par votre hotspot mobile.
-const char* ssid = "NOM_DU_HOTSPOT";
-const char* password = "MOT_DE_PASSE";
+const char* ssid = "AERF-HOME";
+const char* password = "fatick2026";
 
 // En local, utilisez l'adresse IP du PC sur le meme reseau WiFi.
-// Exemple: http://192.168.1.20:8000/api/positions/
-const char* serverUrl = "http://ADRESSE_IP_DU_PC:8000/api/positions/";
+// Exemple: http://192.168.1.149:8000/api/positions/
+const char* serverUrl = "http://192.168.1.149:8000/api/positions/";
 const char* apiKey = "mototrack-baol-express-2026";
 
 int motoId = 1;

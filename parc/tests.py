@@ -39,6 +39,20 @@ class PositionAPITests(TestCase):
         self.assertEqual(response.json()["status"], "success")
         self.assertEqual(PositionGPS.objects.count(), 1)
 
+    def test_post_position_without_speed_defaults_to_zero(self):
+        response = self.client.post(
+            reverse("api_position_create"),
+            data={"moto_id": self.moto.id, "latitude": 14.123456, "longitude": -16.123456},
+            content_type="application/json",
+            **self.api_headers,
+        )
+
+        self.assertEqual(response.status_code, 201)
+        position = PositionGPS.objects.get()
+        self.assertEqual(position.latitude, 14.123456)
+        self.assertEqual(position.longitude, -16.123456)
+        self.assertEqual(position.vitesse, 0)
+
     def test_post_position_unknown_moto_with_api_key(self):
         response = self.client.post(
             reverse("api_position_create"),

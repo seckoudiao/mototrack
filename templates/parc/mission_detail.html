@@ -48,7 +48,7 @@
                     <thead><tr><th>Date</th><th>Latitude</th><th>Longitude</th><th>Vitesse</th></tr></thead>
                     <tbody>
                     {% for position in positions %}
-                        <tr><td>{{ position.date_heure }}</td><td>{{ position.latitude }}</td><td>{{ position.longitude }}</td><td>{{ position.vitesse }} km/h</td></tr>
+                        <tr><td>{{ position.date_heure }}</td><td>{{ position.latitude }}</td><td>{{ position.longitude }}</td><td>{{ position.vitesse|default_if_none:"N/A" }}{% if position.vitesse is not None %} km/h{% endif %}</td></tr>
                     {% empty %}
                         <tr><td colspan="4" class="text-muted">Aucune position.</td></tr>
                     {% endfor %}

@@ -17,7 +17,9 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19,
 const markers = [];
 positions.forEach((pos) => {
     const livreur = pos.livreur ? pos.livreur.nom_complet : 'Non affecte';
-    const marker = L.marker([pos.latitude, pos.longitude]).addTo(map).bindPopup(`<strong>${pos.immatriculation}</strong><br>Livreur: ${livreur}<br>Vitesse: ${pos.vitesse} km/h<br>${new Date(pos.date_heure).toLocaleString()}`);
+    const vitesse = pos.vitesse ?? 'N/A';
+    const vitesseText = vitesse === 'N/A' ? 'N/A' : `${vitesse} km/h`;
+    const marker = L.marker([pos.latitude, pos.longitude]).addTo(map).bindPopup(`<strong>${pos.immatriculation}</strong><br>Livreur: ${livreur}<br>Vitesse: ${vitesseText}<br>${new Date(pos.date_heure).toLocaleString()}`);
     markers.push(marker);
 });
 if (markers.length) map.fitBounds(L.featureGroup(markers).getBounds().pad(0.2));

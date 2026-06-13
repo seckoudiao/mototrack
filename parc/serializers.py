@@ -21,7 +21,7 @@ class PositionCreateSerializer(serializers.Serializer):
     moto_id = serializers.IntegerField()
     latitude = serializers.FloatField()
     longitude = serializers.FloatField()
-    vitesse = serializers.FloatField(required=False, default=0)
+    vitesse = serializers.FloatField(required=False, allow_null=True, default=0)
 
 
 class LatestPositionSerializer(serializers.ModelSerializer):
