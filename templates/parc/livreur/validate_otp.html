@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Validation OTP{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-5">
+        <div class="panel">
+            <div class="panel-header">
+                <h2>Valider la livraison</h2>
+            </div>
+            <p class="text-muted">Saisissez le code OTP donne par le client pour terminer {{ mission.reference }}.</p>
+            <form method="post" id="otp-form">
+                {% csrf_token %}
+                {{ form.latitude_validation }}
+                {{ form.longitude_validation }}
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.otp_code.id_for_label }}">Code OTP</label>
+                    {{ form.otp_code }}
+                    {% for error in form.otp_code.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                </div>
+                <button class="btn btn-success w-100" type="submit"><i class="bi bi-shield-check"></i> Valider la livraison</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const latField = document.querySelector('[name="latitude_validation"]');
+const lngField = document.querySelector('[name="longitude_validation"]');
+if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition((position) => {
+        latField.value = position.coords.latitude.toFixed(6);
+        lngField.value = position.coords.longitude.toFixed(6);
+    });
+}
+</script>
+{% endblock %}

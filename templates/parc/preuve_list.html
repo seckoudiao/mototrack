@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Preuves{% endblock %}
+
+{% block content %}
+<div class="page-heading"><h1>Preuves de livraison</h1></div>
+<div class="panel">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead><tr><th>Mission</th><th>Client</th><th>Livreur</th><th>Moto</th><th>OTP</th><th>Date</th><th>Position</th></tr></thead>
+            <tbody>
+            {% for preuve in preuves %}
+                <tr>
+                    <td>{{ preuve.mission.reference }}</td>
+                    <td>{{ preuve.mission.client_nom }}</td>
+                    <td>{{ preuve.mission.livreur }}</td>
+                    <td>{{ preuve.mission.moto }}</td>
+                    <td>{{ preuve.otp_valide|yesno:"Valide,Non valide" }}</td>
+                    <td>{{ preuve.date_validation }}</td>
+                    <td>{{ preuve.latitude_validation|default:"-" }}, {{ preuve.longitude_validation|default:"-" }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="7" class="text-muted">Aucune preuve de livraison.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

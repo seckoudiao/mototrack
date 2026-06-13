@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Missions{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <h1>Missions de livraison</h1>
+    <a class="btn btn-success" href="{% url 'mission_create' %}"><i class="bi bi-plus-circle"></i> Creer</a>
+</div>
+<div class="panel">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead><tr><th>Reference</th><th>Client</th><th>Telephone</th><th>Livreur</th><th>Moto</th><th>Statut</th><th></th></tr></thead>
+            <tbody>
+            {% for mission in missions %}
+                <tr>
+                    <td class="fw-bold">{{ mission.reference }}</td>
+                    <td>{{ mission.client_nom }}</td>
+                    <td>{{ mission.client_telephone }}</td>
+                    <td>{{ mission.livreur }}</td>
+                    <td>{{ mission.moto }}</td>
+                    <td><span class="badge text-bg-secondary badge-status">{{ mission.get_statut_display }}</span></td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-secondary" href="{% url 'mission_detail' mission.pk %}"><i class="bi bi-eye"></i></a>
+                        <a class="btn btn-sm btn-outline-primary" href="{% url 'mission_update' mission.pk %}"><i class="bi bi-pencil"></i></a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="7" class="text-muted">Aucune mission.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

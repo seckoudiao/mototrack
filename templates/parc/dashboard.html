@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">Baol Express</p>
+        <h1>Dashboard responsable</h1>
+    </div>
+    <a class="btn btn-success" href="{% url 'mission_create' %}"><i class="bi bi-plus-circle"></i> Nouvelle mission</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="stat-card"><i class="bi bi-bicycle"></i><span>Motos</span><strong>{{ motos_count }}</strong></div></div>
+    <div class="col-md-3"><div class="stat-card"><i class="bi bi-person-badge"></i><span>Livreurs</span><strong>{{ livreurs_count }}</strong></div></div>
+    <div class="col-md-3"><div class="stat-card"><i class="bi bi-box-seam"></i><span>Missions en cours</span><strong>{{ missions_en_cours_count }}</strong></div></div>
+    <div class="col-md-3"><div class="stat-card danger"><i class="bi bi-bell"></i><span>Alertes non lues</span><strong>{{ alertes_non_lues_count }}</strong></div></div>
+</div>
+
+<div class="row g-4">
+    <div class="col-xl-8">
+        <div class="panel">
+            <div class="panel-header"><h2>Positions GPS recentes</h2></div>
+            <div id="map" class="map-large"></div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="panel mb-4">
+            <div class="panel-header"><h2>Missions recentes</h2></div>
+            <div class="list-group list-group-flush">
+                {% for mission in recent_missions %}
+                    <a class="list-group-item list-group-item-action" href="{% url 'mission_detail' mission.pk %}">
+                        <strong>{{ mission.reference }}</strong><br>
+                        <span class="text-muted">{{ mission.client_nom }} - {{ mission.get_statut_display }}</span>
+                    </a>
+                {% empty %}
+                    <div class="list-group-item text-muted">Aucune mission.</div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="panel">
+            <div class="panel-header"><h2>Alertes recentes</h2></div>
+            <div class="list-group list-group-flush">
+                {% for alerte in recent_alertes %}
+                    <div class="list-group-item">
+                        <strong>{{ alerte.moto }}</strong><br>
+                        <span class="text-muted">{{ alerte.message }}</span>
+                    </div>
+                {% empty %}
+                    <div class="list-group-item text-muted">Aucune alerte.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const positions = JSON.parse('{{ latest_positions_json|escapejs }}');
+const map = L.map('map').setView([14.6937, -17.4441], 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
+const markers = [];
+positions.forEach((pos) => {
+    const livreur = pos.livreur ? pos.livreur.nom_complet : 'Non affecte';
+    const marker = L.marker([pos.latitude, pos.longitude]).addTo(map).bindPopup(`<strong>${pos.immatriculation}</strong><br>${livreur}<br>${pos.vitesse} km/h`);
+    markers.push(marker);
+});
+if (markers.length) map.fitBounds(L.featureGroup(markers).getBounds().pad(0.2));
+</script>
+{% endblock %}

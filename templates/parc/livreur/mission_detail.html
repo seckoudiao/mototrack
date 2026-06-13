@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}{{ mission.reference }}{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">{{ mission.get_statut_display }}</p>
+        <h1>{{ mission.client_nom }}</h1>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="panel mb-4">
+            <div class="panel-header"><h2>Informations client</h2></div>
+            <p><strong>Telephone:</strong> {{ mission.client_telephone }}</p>
+            <a class="btn btn-success w-100 mb-3" href="tel:{{ mission.client_telephone }}"><i class="bi bi-telephone"></i> Appeler le client</a>
+            <p><strong>Adresse:</strong> {{ mission.adresse_livraison }}</p>
+            <p><strong>Description du lieu:</strong><br>{{ mission.description_lieu|linebreaksbr }}</p>
+            <p><strong>Colis:</strong><br>{{ mission.description_colis|linebreaksbr }}</p>
+        </div>
+        <div class="panel">
+            <div class="panel-header"><h2>Actions</h2></div>
+            {% if mission.statut == "planifiee" %}
+                <form method="post" action="{% url 'livreur_start_mission' mission.pk %}">
+                    {% csrf_token %}
+                    <button class="btn btn-primary w-100" type="submit"><i class="bi bi-play-circle"></i> Demarrer la mission</button>
+                </form>
+            {% elif mission.statut == "en_cours" %}
+                <a class="btn btn-success w-100" href="{% url 'livreur_validate_delivery' mission.pk %}"><i class="bi bi-shield-check"></i> Valider par OTP</a>
+            {% else %}
+                <div class="soft-note">Mission terminee ou annulee.</div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="panel">
+            <div class="panel-header"><h2>Carte destination</h2></div>
+            <div id="destination-map" class="map-large"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const destination = JSON.parse('{{ destination_json|escapejs }}');
+const lat = destination.latitude || 14.6937;
+const lng = destination.longitude || -17.4441;
+const map = L.map('destination-map').setView([lat, lng], destination.latitude ? 15 : 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
+if (destination.latitude) L.marker([lat, lng]).addTo(map).bindPopup(destination.client);
+</script>
+{% endblock %}

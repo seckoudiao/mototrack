@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Motos{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <h1>Gestion des motos</h1>
+    <a class="btn btn-primary" href="{% url 'moto_create' %}"><i class="bi bi-plus-circle"></i> Ajouter</a>
+</div>
+<div class="panel">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead><tr><th>Immatriculation</th><th>Marque</th><th>Modele</th><th>Etat</th><th></th></tr></thead>
+            <tbody>
+            {% for moto in motos %}
+                <tr>
+                    <td class="fw-bold">{{ moto.immatriculation }}</td>
+                    <td>{{ moto.marque }}</td>
+                    <td>{{ moto.modele }}</td>
+                    <td><span class="badge text-bg-secondary badge-status">{{ moto.get_etat_display }}</span></td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-primary" href="{% url 'moto_update' moto.pk %}"><i class="bi bi-pencil"></i></a>
+                        <a class="btn btn-sm btn-outline-danger" href="{% url 'moto_delete' moto.pk %}"><i class="bi bi-trash"></i></a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5" class="text-muted">Aucune moto enregistree.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

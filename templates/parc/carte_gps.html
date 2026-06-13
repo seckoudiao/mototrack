@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Carte GPS{% endblock %}
+
+{% block content %}
+<div class="page-heading"><h1>Carte GPS temps reel</h1></div>
+<div class="panel p-0 overflow-hidden">
+    <div id="map" class="map-full"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const positions = JSON.parse('{{ latest_positions_json|escapejs }}');
+const map = L.map('map').setView([14.6937, -17.4441], 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
+const markers = [];
+positions.forEach((pos) => {
+    const livreur = pos.livreur ? pos.livreur.nom_complet : 'Non affecte';
+    const marker = L.marker([pos.latitude, pos.longitude]).addTo(map).bindPopup(`<strong>${pos.immatriculation}</strong><br>Livreur: ${livreur}<br>Vitesse: ${pos.vitesse} km/h<br>${new Date(pos.date_heure).toLocaleString()}`);
+    markers.push(marker);
+});
+if (markers.length) map.fitBounds(L.featureGroup(markers).getBounds().pad(0.2));
+</script>
+{% endblock %}

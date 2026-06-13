@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}{{ mission.reference }}{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">{{ mission.get_statut_display }}</p>
+        <h1>{{ mission.reference }} - {{ mission.client_nom }}</h1>
+    </div>
+    <a class="btn btn-outline-primary" href="{% url 'mission_update' mission.pk %}"><i class="bi bi-pencil"></i> Modifier</a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="panel mb-4">
+            <div class="panel-header"><h2>Client et livraison</h2></div>
+            <p><strong>Client:</strong> {{ mission.client_nom }}</p>
+            <p><strong>Telephone:</strong> {{ mission.client_telephone }}</p>
+            <p><strong>Adresse:</strong> {{ mission.adresse_livraison }}</p>
+            <p><strong>Description lieu:</strong><br>{{ mission.description_lieu|linebreaksbr }}</p>
+            <p><strong>Colis:</strong><br>{{ mission.description_colis|linebreaksbr }}</p>
+        </div>
+        <div class="panel mb-4">
+            <div class="panel-header"><h2>Affectation</h2></div>
+            <p><strong>Livreur:</strong> {{ mission.livreur }}</p>
+            <p><strong>Moto:</strong> {{ mission.moto }}</p>
+            <div class="soft-note"><strong>OTP client:</strong> <span class="fs-4 fw-bold">{{ mission.otp_code }}</span></div>
+        </div>
+        {% if mission.preuve %}
+        <div class="panel">
+            <div class="panel-header"><h2>Preuve de livraison</h2></div>
+            <p><strong>OTP valide:</strong> {{ mission.preuve.otp_valide|yesno:"Oui,Non" }}</p>
+            <p><strong>Date:</strong> {{ mission.preuve.date_validation }}</p>
+            <p><strong>Position:</strong> {{ mission.preuve.latitude_validation|default:"-" }}, {{ mission.preuve.longitude_validation|default:"-" }}</p>
+        </div>
+        {% endif %}
+    </div>
+    <div class="col-lg-7">
+        <div class="panel mb-4">
+            <div class="panel-header"><h2>Destination</h2></div>
+            <div id="destination-map" class="map-large"></div>
+        </div>
+        <div class="panel">
+            <div class="panel-header"><h2>Dernieres positions GPS de la moto</h2></div>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead><tr><th>Date</th><th>Latitude</th><th>Longitude</th><th>Vitesse</th></tr></thead>
+                    <tbody>
+                    {% for position in positions %}
+                        <tr><td>{{ position.date_heure }}</td><td>{{ position.latitude }}</td><td>{{ position.longitude }}</td><td>{{ position.vitesse }} km/h</td></tr>
+                    {% empty %}
+                        <tr><td colspan="4" class="text-muted">Aucune position.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const destination = JSON.parse('{{ destination_json|escapejs }}');
+const lat = destination.latitude || 14.6937;
+const lng = destination.longitude || -17.4441;
+const map = L.map('destination-map').setView([lat, lng], destination.latitude ? 15 : 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
+if (destination.latitude) L.marker([lat, lng]).addTo(map).bindPopup(destination.client);
+</script>
+{% endblock %}

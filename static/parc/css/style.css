@@ -1,0 +1,27 @@
+body {
+    background: #f6f7f9;
+}
+
+.card {
+    border-radius: 8px;
+}
+
+.stat-card span {
+    color: #6c757d;
+    display: block;
+    font-size: 0.9rem;
+}
+
+.stat-card strong {
+    display: block;
+    font-size: 2rem;
+}
+
+.map-large {
+    height: 460px;
+}
+
+.map-full {
+    height: calc(100vh - 170px);
+    min-height: 480px;
+}

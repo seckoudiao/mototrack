@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">Mission</p>
+        <h1>{{ title }}</h1>
+    </div>
+</div>
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="panel form-panel">
+            <div class="soft-note mb-3">
+                Reference et OTP generes automatiquement a l'enregistrement.
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3">
+                    {% for field in form %}
+                        {% if field.is_hidden %}
+                            {{ field }}
+                        {% else %}
+                            <div class="col-md-6">
+                                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="mt-4 d-flex gap-2">
+                    <button class="btn btn-success" type="submit"><i class="bi bi-send-check"></i> Enregistrer la mission</button>
+                    <a class="btn btn-light" href="{% url 'mission_list' %}">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="panel">
+            <div class="panel-header"><h2>Destination</h2></div>
+            <div id="destination-map" class="map-form"></div>
+            <p class="small text-muted mt-3 mb-0">Cliquez sur la carte pour placer la destination. Les coordonnees restent cachees dans le formulaire.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const latInput = document.querySelector('[name="latitude_destination"]');
+const lngInput = document.querySelector('[name="longitude_destination"]');
+const startLat = latInput.value ? parseFloat(latInput.value) : 14.6937;
+const startLng = lngInput.value ? parseFloat(lngInput.value) : -17.4441;
+const formMap = L.map('destination-map').setView([startLat, startLng], 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(formMap);
+let marker = null;
+function placeMarker(lat, lng) {
+    latInput.value = lat.toFixed(6);
+    lngInput.value = lng.toFixed(6);
+    if (marker) marker.setLatLng([lat, lng]);
+    else marker = L.marker([lat, lng]).addTo(formMap);
+}
+if (latInput.value && lngInput.value) placeMarker(startLat, startLng);
+formMap.on('click', (event) => placeMarker(event.latlng.lat, event.latlng.lng));
+</script>
+{% endblock %}

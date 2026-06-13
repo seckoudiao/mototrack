@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Historique GPS{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">Historique GPS</h1>
+<form class="row g-2 mb-3" method="get">
+    <div class="col-md-5">
+        <select class="form-select" name="moto">
+            <option value="">Choisir une moto</option>
+            {% for moto in motos %}
+                <option value="{{ moto.id }}" {% if selected_moto and selected_moto.id == moto.id %}selected{% endif %}>{{ moto.immatriculation }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2"><button class="btn btn-primary w-100" type="submit">Afficher</button></div>
+</form>
+
+{% if selected_moto %}
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">Positions de {{ selected_moto.immatriculation }}</div>
+            <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                    <thead><tr><th>Date</th><th>Latitude</th><th>Longitude</th><th>Vitesse</th></tr></thead>
+                    <tbody>
+                    {% for position in positions %}
+                        <tr><td>{{ position.date_heure }}</td><td>{{ position.latitude }}</td><td>{{ position.longitude }}</td><td>{{ position.vitesse }}</td></tr>
+                    {% empty %}
+                        <tr><td colspan="4">Aucune position.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body p-0"><div id="map" class="map-large"></div></div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if selected_moto %}
+<script>
+    const positions = JSON.parse('{{ positions_json|escapejs }}');
+    const map = L.map('map').setView([14.6937, -17.4441], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+
+    const path = positions.map((pos) => [pos.latitude, pos.longitude]);
+    positions.forEach((pos) => {
+        L.circleMarker([pos.latitude, pos.longitude], { radius: 5 }).addTo(map)
+            .bindPopup(`${new Date(pos.date_heure).toLocaleString()} - ${pos.vitesse} km/h`);
+    });
+    if (path.length > 1) {
+        L.polyline(path, { color: '#0d6efd' }).addTo(map);
+    }
+    if (path.length > 0) {
+        map.fitBounds(L.latLngBounds(path).pad(0.2));
+    }
+</script>
+{% endif %}
+{% endblock %}

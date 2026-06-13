@@ -1,0 +1,185 @@
+Watching for file changes with StatReloader
+[12/Jun/2026 22:15:53] "GET /api/motos/ HTTP/1.1" 200 141
+[12/Jun/2026 22:15:53,922] - Broken pipe from ('127.0.0.1', 63742)
+[12/Jun/2026 22:16:19] "GET /api/motos/ HTTP/1.1" 200 141
+[12/Jun/2026 22:16:21,945] - Broken pipe from ('127.0.0.1', 63570)
+[12/Jun/2026 22:16:44] "POST /api/positions/ HTTP/1.1" 201 53
+[12/Jun/2026 22:16:44] "POST /api/positions/ HTTP/1.1" 201 53
+[12/Jun/2026 22:16:44,697] - Broken pipe from ('127.0.0.1', 63573)
+[12/Jun/2026 22:16:44,769] - Broken pipe from ('127.0.0.1', 63574)
+[12/Jun/2026 22:17:01] "GET /api/alertes/ HTTP/1.1" 200 327
+[12/Jun/2026 22:17:02] "GET /api/positions/latest/ HTTP/1.1" 200 215
+[12/Jun/2026 22:17:02,549] - Broken pipe from ('127.0.0.1', 63577)
+[12/Jun/2026 22:17:02,714] - Broken pipe from ('127.0.0.1', 63578)
+[12/Jun/2026 22:17:53] "GET / HTTP/1.1" 302 0
+[12/Jun/2026 22:17:53] "GET /accounts/login/?next=/ HTTP/1.1" 200 2282
+[12/Jun/2026 22:17:53] "GET /static/parc/css/style.css HTTP/1.1" 200 323
+[12/Jun/2026 22:18:28] "POST /accounts/login/?next=/ HTTP/1.1" 302 0
+[12/Jun/2026 22:18:28] "GET / HTTP/1.1" 200 4408
+[12/Jun/2026 22:18:47] "GET /carte/ HTTP/1.1" 200 3667
+Not Found: /api/positions/
+[12/Jun/2026 22:19:14] "POST /api/positions/ HTTP/1.1" 404 47
+[12/Jun/2026 22:19:14,599] - Broken pipe from ('127.0.0.1', 61251)
+Bad Request: /api/positions/
+[12/Jun/2026 22:19:51] "POST /api/positions/ HTTP/1.1" 400 107
+Bad Request: /api/positions/
+[12/Jun/2026 22:20:10] "POST /api/positions/ HTTP/1.1" 400 107
+Not Found: /api/positions/
+[12/Jun/2026 22:20:50] "POST /api/positions/ HTTP/1.1" 404 47
+[12/Jun/2026 22:21:35] "GET / HTTP/1.1" 200 4408
+[12/Jun/2026 22:21:36] "GET /static/parc/css/style.css HTTP/1.1" 304 0
+[12/Jun/2026 22:21:36] "GET / HTTP/1.1" 200 4408
+[12/Jun/2026 22:22:04] "GET / HTTP/1.1" 200 4408
+[12/Jun/2026 22:22:16] "GET /livreurs/ HTTP/1.1" 200 3229
+[12/Jun/2026 22:22:36] "GET / HTTP/1.1" 200 4408
+[12/Jun/2026 22:23:00] "GET / HTTP/1.1" 302 0
+[12/Jun/2026 22:23:00] "GET /accounts/login/?next=/ HTTP/1.1" 200 2282
+[12/Jun/2026 22:23:01] "GET /static/parc/css/style.css HTTP/1.1" 200 323
+Not Found: /favicon.ico
+[12/Jun/2026 22:23:01] "GET /favicon.ico HTTP/1.1" 404 9307
+[12/Jun/2026 22:23:56] "POST /accounts/login/?next=/ HTTP/1.1" 302 0
+[12/Jun/2026 22:23:56] "GET / HTTP/1.1" 200 4408
+[12/Jun/2026 22:23:56] "GET /static/parc/css/style.css HTTP/1.1" 200 323
+[12/Jun/2026 22:24:42] "GET /motos/ HTTP/1.1" 200 3164
+[12/Jun/2026 22:24:58] "GET /livreurs/ HTTP/1.1" 200 3229
+[12/Jun/2026 22:25:01] "GET /motos/ HTTP/1.1" 200 3164
+[12/Jun/2026 22:25:06] "GET /livreurs/ HTTP/1.1" 200 3229
+[12/Jun/2026 22:25:17] "GET /affectations/ HTTP/1.1" 200 2904
+[12/Jun/2026 22:25:40] "GET /missions/ HTTP/1.1" 200 3230
+[12/Jun/2026 22:26:04] "GET /carte/ HTTP/1.1" 200 3667
+[12/Jun/2026 22:26:06] "GET /historique/ HTTP/1.1" 200 2693
+[12/Jun/2026 22:26:10] "GET /historique/?moto=1 HTTP/1.1" 200 5186
+[12/Jun/2026 22:26:17] "GET /alertes/ HTTP/1.1" 200 3195
+[12/Jun/2026 22:26:30] "GET / HTTP/1.1" 200 4408
+[12/Jun/2026 22:26:30] "GET /static/parc/css/style.css HTTP/1.1" 304 0
+[12/Jun/2026 22:26:31] "GET /motos/ HTTP/1.1" 200 3164
+[12/Jun/2026 22:26:32] "GET /livreurs/ HTTP/1.1" 200 3229
+[12/Jun/2026 22:26:33] "GET /affectations/ HTTP/1.1" 200 2904
+[12/Jun/2026 22:26:35] "GET /missions/ HTTP/1.1" 200 3230
+[12/Jun/2026 22:26:36] "GET /carte/ HTTP/1.1" 200 3667
+[12/Jun/2026 22:26:37] "GET /historique/ HTTP/1.1" 200 2693
+[12/Jun/2026 22:26:39] "GET / HTTP/1.1" 200 4408
+[12/Jun/2026 22:27:12] "GET /motos/ HTTP/1.1" 200 3164
+[12/Jun/2026 22:27:16] "GET /livreurs/ HTTP/1.1" 200 3229
+[12/Jun/2026 22:27:19] "GET /affectations/ HTTP/1.1" 200 2904
+[12/Jun/2026 22:27:20] "GET /missions/ HTTP/1.1" 200 3230
+[12/Jun/2026 22:27:21] "GET /carte/ HTTP/1.1" 200 3667
+[12/Jun/2026 22:27:23] "GET /historique/ HTTP/1.1" 200 2693
+[12/Jun/2026 22:27:25] "GET /carte/ HTTP/1.1" 200 3667
+[12/Jun/2026 22:27:31] "GET /carte/ HTTP/1.1" 200 3667
+[12/Jun/2026 22:27:36] "GET / HTTP/1.1" 200 4408
+[12/Jun/2026 22:27:42] "GET /motos/ HTTP/1.1" 200 3164
+[12/Jun/2026 22:27:58] "GET /affectations/ HTTP/1.1" 200 2904
+[12/Jun/2026 22:28:00] "GET /affectations/ HTTP/1.1" 200 2904
+[12/Jun/2026 22:28:50] "GET /missions/ HTTP/1.1" 200 3230
+[12/Jun/2026 22:30:25] "GET /missions/ HTTP/1.1" 200 3230
+[12/Jun/2026 22:30:25] "GET /static/parc/css/style.css HTTP/1.1" 304 0
+[12/Jun/2026 22:30:27] "GET /missions/ajouter/ HTTP/1.1" 200 7772
+[12/Jun/2026 22:36:49] "GET /alertes/ HTTP/1.1" 200 3195
+[12/Jun/2026 22:36:49] "GET /static/parc/css/style.css HTTP/1.1" 304 0
+[12/Jun/2026 22:36:51] "GET /carte/ HTTP/1.1" 200 3667
+[12/Jun/2026 22:36:53] "GET /affectations/ HTTP/1.1" 200 2904
+[12/Jun/2026 22:36:55] "GET /livreurs/ HTTP/1.1" 200 3229
+[12/Jun/2026 22:36:56] "GET / HTTP/1.1" 200 4408
+[12/Jun/2026 22:36:57] "GET / HTTP/1.1" 200 4408
+[12/Jun/2026 22:40:12] "GET /motos/ HTTP/1.1" 200 3164
+[12/Jun/2026 22:40:13] "GET /livreurs/ HTTP/1.1" 200 3229
+[12/Jun/2026 22:40:15] "GET /affectations/ HTTP/1.1" 200 2904
+[12/Jun/2026 22:40:29] "POST /accounts/logout/ HTTP/1.1" 302 0
+[12/Jun/2026 22:40:29] "GET /accounts/login/ HTTP/1.1" 200 2282
+[13/Jun/2026 00:19:50] "POST /accounts/login/ HTTP/1.1" 302 0
+[13/Jun/2026 00:19:50] "GET / HTTP/1.1" 200 4408
+[13/Jun/2026 00:19:50] "GET /static/parc/css/style.css HTTP/1.1" 304 0
+[13/Jun/2026 00:20:21] "GET /motos/ HTTP/1.1" 200 3164
+[13/Jun/2026 00:20:35] "GET /livreurs/ HTTP/1.1" 200 3229
+[13/Jun/2026 00:21:13] "GET /missions/ HTTP/1.1" 200 3230
+[13/Jun/2026 00:21:23] "GET /missions/ajouter/ HTTP/1.1" 200 7772
+[13/Jun/2026 10:03:26] "GET / HTTP/1.1" 200 4408
+[13/Jun/2026 10:03:26] "GET /static/parc/css/style.css HTTP/1.1" 304 0
+C:\Users\Diao\Documents\Codex\2026-06-12\tu-es-un-d-veloppeur-full\backend\settings.py changed, reloading.
+Traceback (most recent call last):
+  File "C:\Users\Diao\Documents\Codex\2026-06-12\tu-es-un-d-veloppeur-full\.venv\Lib\site-packages\django\core\management\base.py", line 420, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "C:\Users\Diao\Documents\Codex\2026-06-12\tu-es-un-d-veloppeur-full\.venv\Lib\site-packages\django\core\management\commands\runserver.py", line 69, in execute
+    super().execute(*args, **options)
+  File "C:\Users\Diao\Documents\Codex\2026-06-12\tu-es-un-d-veloppeur-full\.venv\Lib\site-packages\django\core\management\base.py", line 464, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Diao\Documents\Codex\2026-06-12\tu-es-un-d-veloppeur-full\.venv\Lib\site-packages\django\core\management\commands\runserver.py", line 80, in handle
+    if not settings.DEBUG and not settings.ALLOWED_HOSTS:
+           ^^^^^^^^^^^^^^
+  File "C:\Users\Diao\Documents\Codex\2026-06-12\tu-es-un-d-veloppeur-full\.venv\Lib\site-packages\django\conf\__init__.py", line 81, in __getattr__
+    self._setup(name)
+  File "C:\Users\Diao\Documents\Codex\2026-06-12\tu-es-un-d-veloppeur-full\.venv\Lib\site-packages\django\conf\__init__.py", line 68, in _setup
+    self._wrapped = Settings(settings_module)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Diao\Documents\Codex\2026-06-12\tu-es-un-d-veloppeur-full\.venv\Lib\site-packages\django\conf\__init__.py", line 166, in __init__
+    mod = importlib.import_module(self.SETTINGS_MODULE)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Diao\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\importlib\__init__.py", line 90, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "C:\Users\Diao\Documents\Codex\2026-06-12\tu-es-un-d-veloppeur-full\backend\settings.py", line 5, in <module>
+    import environ
+ModuleNotFoundError: No module named 'environ'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Diao\Documents\Codex\2026-06-12\tu-es-un-d-veloppeur-full\manage.py", line 21, in <module>
+    main()
+  File "C:\Users\Diao\Documents\Codex\2026-06-12\tu-es-un-d-veloppeur-full\manage.py", line 17, in main
+    execute_from_command_line(sys.argv)
+  File "C:\Users\Diao\Documents\Codex\2026-06-12\tu-es-un-d-veloppeur-full\.venv\Lib\site-packages\django\core\management\__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "C:\Users\Diao\Documents\Codex\2026-06-12\tu-es-un-d-veloppeur-full\.venv\Lib\site-packages\django\core\management\__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "C:\Users\Diao\Documents\Codex\2026-06-12\tu-es-un-d-veloppeur-full\.venv\Lib\site-packages\django\core\management\base.py", line 433, in run_from_argv
+    connections.close_all()
+  File "C:\Users\Diao\Documents\Codex\2026-06-12\tu-es-un-d-veloppeur-full\.venv\Lib\site-packages\django\utils\connection.py", line 84, in close_all
+    for conn in self.all(initialized_only=True):
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Diao\Documents\Codex\2026-06-12\tu-es-un-d-veloppeur-full\.venv\Lib\site-packages\django\utils\connection.py", line 78, in all
+    for alias in self
+                 ^^^^
+  File "C:\Users\Diao\Documents\Codex\2026-06-12\tu-es-un-d-veloppeur-full\.venv\Lib\site-packages\django\utils\connection.py", line 73, in __iter__
+    return iter(self.settings)
+                ^^^^^^^^^^^^^
+  File "C:\Users\Diao\Documents\Codex\2026-06-12\tu-es-un-d-veloppeur-full\.venv\Lib\site-packages\django\utils\functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Diao\Documents\Codex\2026-06-12\tu-es-un-d-veloppeur-full\.venv\Lib\site-packages\django\utils\connection.py", line 45, in settings
+    self._settings = self.configure_settings(self._settings)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Diao\Documents\Codex\2026-06-12\tu-es-un-d-veloppeur-full\.venv\Lib\site-packages\django\db\utils.py", line 148, in configure_settings
+    databases = super().configure_settings(databases)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Diao\Documents\Codex\2026-06-12\tu-es-un-d-veloppeur-full\.venv\Lib\site-packages\django\utils\connection.py", line 50, in configure_settings
+    settings = getattr(django_settings, self.settings_name)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Diao\Documents\Codex\2026-06-12\tu-es-un-d-veloppeur-full\.venv\Lib\site-packages\django\conf\__init__.py", line 81, in __getattr__
+    self._setup(name)
+  File "C:\Users\Diao\Documents\Codex\2026-06-12\tu-es-un-d-veloppeur-full\.venv\Lib\site-packages\django\conf\__init__.py", line 68, in _setup
+    self._wrapped = Settings(settings_module)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Diao\Documents\Codex\2026-06-12\tu-es-un-d-veloppeur-full\.venv\Lib\site-packages\django\conf\__init__.py", line 166, in __init__
+    mod = importlib.import_module(self.SETTINGS_MODULE)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Diao\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\importlib\__init__.py", line 90, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "C:\Users\Diao\Documents\Codex\2026-06-12\tu-es-un-d-veloppeur-full\backend\settings.py", line 5, in <module>
+    import environ
+ModuleNotFoundError: No module named 'environ'

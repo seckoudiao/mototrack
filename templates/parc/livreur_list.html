@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Livreurs{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <h1>Gestion des livreurs</h1>
+    <a class="btn btn-primary" href="{% url 'livreur_create' %}"><i class="bi bi-plus-circle"></i> Ajouter</a>
+</div>
+<div class="panel">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead><tr><th>Livreur</th><th>Compte</th><th>Telephone</th><th>CNI</th><th>Permis</th><th>Statut</th><th></th></tr></thead>
+            <tbody>
+            {% for livreur in livreurs %}
+                <tr>
+                    <td class="fw-bold">{{ livreur.prenom }} {{ livreur.nom }}</td>
+                    <td>{{ livreur.user.username|default:"Non lie" }}</td>
+                    <td>{{ livreur.telephone }}</td>
+                    <td>{{ livreur.cni }}</td>
+                    <td>{{ livreur.numero_permis }}</td>
+                    <td><span class="badge text-bg-secondary badge-status">{{ livreur.get_statut_display }}</span></td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-primary" href="{% url 'livreur_update' livreur.pk %}"><i class="bi bi-pencil"></i></a>
+                        <a class="btn btn-sm btn-outline-warning" href="{% url 'livreur_deactivate' livreur.pk %}"><i class="bi bi-person-dash"></i></a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="7" class="text-muted">Aucun livreur enregistre.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
