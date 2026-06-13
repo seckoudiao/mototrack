@@ -8,6 +8,7 @@ const char* password = "MOT_DE_PASSE";
 // En local, utilisez l'adresse IP du PC sur le meme reseau WiFi.
 // Exemple: http://192.168.1.20:8000/api/positions/
 const char* serverUrl = "http://ADRESSE_IP_DU_PC:8000/api/positions/";
+const char* apiKey = "mototrack-baol-express-2026";
 
 int motoId = 1;
 
@@ -36,6 +37,7 @@ void loop() {
     HTTPClient http;
     http.begin(serverUrl);
     http.addHeader("Content-Type", "application/json");
+    http.addHeader("X-API-KEY", apiKey);
 
     String payload = "{";
     payload += "\"moto_id\":" + String(motoId) + ",";

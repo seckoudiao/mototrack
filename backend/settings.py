@@ -1,5 +1,4 @@
 from pathlib import Path
-import os
 
 import dj_database_url
 import environ
@@ -58,16 +57,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "backend.wsgi.application"
 
-# DATABASE_URL vient de .env. Si elle garde le placeholder Supabase, SQLite reste utilisable en local.
+# DATABASE_URL vient de .env. Si elle garde un placeholder Supabase, SQLite reste utilisable en local.
 database_url = env("DATABASE_URL", default="")
-if "[SUPABASE_DB_PASSWORD]" in database_url:
+if "[" in database_url or "]" in database_url:
     database_url = ""
 
 DATABASES = {
-    "default": dj_database_url.config(
-        default=database_url or f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
-        conn_max_age=600,
-    )
+    "default": dj_database_url.parse(database_url or f"sqlite:///{BASE_DIR / 'db.sqlite3'}", conn_max_age=600)
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -90,7 +86,11 @@ STORAGES = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": (
+            "django.contrib.staticfiles.storage.StaticFilesStorage"
+            if DEBUG
+            else "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        ),
     },
 }
 
