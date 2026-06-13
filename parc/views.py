@@ -1,4 +1,5 @@
 import json
+import math
 from functools import wraps
 
 from django.conf import settings
@@ -78,6 +79,107 @@ def mission_to_destination_json(mission):
     )
 
 
+def gps_status_for_position(position):
+    if not position:
+        return None
+
+    age_seconds = max(0, int((timezone.now() - position.date_heure).total_seconds()))
+    if age_seconds < 30:
+        label = "En ligne"
+        indicator = "🟢"
+    elif age_seconds <= 300:
+        label = "Retarde"
+        indicator = "🟠"
+    else:
+        label = "Hors ligne"
+        indicator = "🔴"
+
+    if age_seconds < 60:
+        age_text = f"{age_seconds} secondes"
+    else:
+        minutes = age_seconds // 60
+        age_text = f"{minutes} minute" if minutes == 1 else f"{minutes} minutes"
+
+    return {
+        "label": label,
+        "indicator": indicator,
+        "age_text": age_text,
+    }
+
+
+def distance_km_between_points(lat1, lon1, lat2, lon2):
+    earth_radius_km = 6371
+    lat1_rad = math.radians(lat1)
+    lat2_rad = math.radians(lat2)
+    delta_lat = math.radians(lat2 - lat1)
+    delta_lon = math.radians(lon2 - lon1)
+    a = (
+        math.sin(delta_lat / 2) ** 2
+        + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(delta_lon / 2) ** 2
+    )
+    return earth_radius_km * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+
+def is_abnormal_gps_jump(moto, latitude, longitude):
+    latest_position = PositionGPS.objects.filter(moto=moto).first()
+    if not latest_position:
+        return False
+
+    age_seconds = (timezone.now() - latest_position.date_heure).total_seconds()
+    distance_km = distance_km_between_points(
+        latest_position.latitude,
+        latest_position.longitude,
+        latitude,
+        longitude,
+    )
+    return age_seconds < 20 and distance_km > 2
+
+
+def mission_tracking_context(mission):
+    positions = []
+    technical_positions = []
+    latest_position = None
+    gps_status = None
+
+    if mission.date_depart:
+        positions = list(PositionGPS.objects.filter(moto=mission.moto, date_heure__gte=mission.date_depart).order_by("date_heure"))
+        latest_position = positions[-1] if positions else None
+        technical_positions = list(reversed(positions[-3:]))
+        gps_status = gps_status_for_position(latest_position)
+
+    return {
+        "positions": positions,
+        "positions_json": positions_to_map_json(positions),
+        "latest_position": latest_position,
+        "gps_status": gps_status,
+        "technical_positions": technical_positions,
+    }
+
+
+def validate_delivery_gps_position(mission):
+    if mission.latitude_destination is None or mission.longitude_destination is None:
+        return "Destination GPS non renseignee pour cette mission.", None
+
+    latest_position = PositionGPS.objects.filter(moto=mission.moto).first()
+    if not latest_position:
+        return "Aucune position GPS récente disponible pour cette moto.", None
+
+    age_seconds = (timezone.now() - latest_position.date_heure).total_seconds()
+    if age_seconds > 120:
+        return "Position GPS trop ancienne pour valider la livraison.", None
+
+    distance_km = distance_km_between_points(
+        latest_position.latitude,
+        latest_position.longitude,
+        mission.latitude_destination,
+        mission.longitude_destination,
+    )
+    if distance_km > 0.1:
+        return "Vous êtes trop éloigné de la destination pour valider cette livraison.", None
+
+    return None, latest_position
+
+
 class PositionCreateAPIView(APIView):
     """Endpoint appele par l'ESP32 toutes les 10 secondes."""
 
@@ -107,6 +209,12 @@ class PositionCreateAPIView(APIView):
         vitesse = data.get("vitesse")
         if vitesse is None:
             vitesse = 0
+
+        if is_abnormal_gps_jump(moto, data["latitude"], data["longitude"]):
+            return Response(
+                {"status": "ignored", "message": "Position ignoree : saut GPS anormal"},
+                status=status.HTTP_200_OK,
+            )
 
         position = PositionGPS.objects.create(
             moto=moto,
@@ -286,14 +394,14 @@ def mission_update(request, pk):
 @responsable_required
 def mission_detail(request, pk):
     mission = get_object_or_404(Mission.objects.select_related("livreur", "moto"), pk=pk)
-    positions = PositionGPS.objects.filter(moto=mission.moto)[:50]
+    tracking_context = mission_tracking_context(mission)
     return render(
         request,
         "parc/mission_detail.html",
         {
             "mission": mission,
-            "positions": positions,
             "destination_json": mission_to_destination_json(mission),
+            **tracking_context,
         },
     )
 
@@ -352,10 +460,15 @@ def livreur_dashboard(request):
 @livreur_required
 def livreur_mission_detail(request, pk):
     mission = get_object_or_404(Mission.objects.select_related("moto"), pk=pk, livreur=request.livreur)
+    tracking_context = mission_tracking_context(mission)
     return render(
         request,
         "parc/livreur/mission_detail.html",
-        {"mission": mission, "destination_json": mission_to_destination_json(mission)},
+        {
+            "mission": mission,
+            "destination_json": mission_to_destination_json(mission),
+            **tracking_context,
+        },
     )
 
 
@@ -382,12 +495,17 @@ def livreur_validate_delivery(request, pk):
         if otp_code != mission.otp_code:
             form.add_error("otp_code", "Code OTP incorrect.")
         else:
+            gps_error, latest_position = validate_delivery_gps_position(mission)
+            if gps_error:
+                form.add_error(None, gps_error)
+                return render(request, "parc/livreur/validate_otp.html", {"mission": mission, "form": form})
+
             PreuveLivraison.objects.update_or_create(
                 mission=mission,
                 defaults={
                     "otp_valide": True,
-                    "latitude_validation": form.cleaned_data.get("latitude_validation"),
-                    "longitude_validation": form.cleaned_data.get("longitude_validation"),
+                    "latitude_validation": latest_position.latitude,
+                    "longitude_validation": latest_position.longitude,
                     "date_validation": timezone.now(),
                 },
             )

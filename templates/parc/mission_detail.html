@@ -37,24 +37,70 @@
         {% endif %}
     </div>
     <div class="col-lg-7">
-        <div class="panel mb-4">
-            <div class="panel-header"><h2>Destination</h2></div>
-            <div id="destination-map" class="map-large"></div>
-        </div>
         <div class="panel">
-            <div class="panel-header"><h2>Dernieres positions GPS de la moto</h2></div>
-            <div class="table-responsive">
-                <table class="table table-sm">
-                    <thead><tr><th>Date</th><th>Latitude</th><th>Longitude</th><th>Vitesse</th></tr></thead>
-                    <tbody>
-                    {% for position in positions %}
-                        <tr><td>{{ position.date_heure }}</td><td>{{ position.latitude }}</td><td>{{ position.longitude }}</td><td>{{ position.vitesse|default_if_none:"N/A" }}{% if position.vitesse is not None %} km/h{% endif %}</td></tr>
-                    {% empty %}
-                        <tr><td colspan="4" class="text-muted">Aucune position.</td></tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+            <div class="panel-header">
+                <h2>Suivi GPS de la mission</h2>
             </div>
+            <div id="mission-map" class="map-large" style="min-height: 520px;"></div>
+
+            <div class="row g-3 mt-3">
+                <div class="col-md-6">
+                    <div class="soft-note h-100">
+                        <strong>Position actuelle de la moto</strong><br>
+                        {% if not mission.date_depart %}
+                            <span class="text-muted">La mission n'a pas encore demarre.</span>
+                        {% elif latest_position %}
+                            <span>Lieu actuel estime: <span id="current-place">Recherche du lieu...</span></span><br>
+                            <span>Derniere mise a jour: {{ latest_position.date_heure }}</span><br>
+                            {% if gps_status %}
+                                <span>Statut GPS: {{ gps_status.indicator }} {{ gps_status.label }}</span><br>
+                                <span class="small text-muted">Derniere position recue il y a {{ gps_status.age_text }}.</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-muted">Aucune position GPS recue pour cette mission.</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="soft-note h-100">
+                        <strong>Destination</strong><br>
+                        {% if mission.latitude_destination and mission.longitude_destination %}
+                            <span>{{ mission.adresse_livraison }}</span><br>
+                            <span class="small text-muted">{{ mission.latitude_destination }}, {{ mission.longitude_destination }}</span>
+                        {% else %}
+                            <span class="text-muted">Destination GPS non renseignee.</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% if mission.date_depart and positions %}
+                <p class="small text-muted mt-3 mb-0">
+                    Trajet GPS estime a partir des positions recues par le dispositif.
+                </p>
+            {% endif %}
+
+            {% if technical_positions %}
+                <button class="btn btn-sm btn-outline-secondary mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#technicalGpsData" aria-expanded="false" aria-controls="technicalGpsData">
+                    Voir donnees techniques
+                </button>
+                <div class="collapse mt-3" id="technicalGpsData">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead><tr><th>Date</th><th>Latitude</th><th>Longitude</th><th>Vitesse</th></tr></thead>
+                            <tbody>
+                            {% for position in technical_positions %}
+                                <tr>
+                                    <td>{{ position.date_heure }}</td>
+                                    <td>{{ position.latitude }}</td>
+                                    <td>{{ position.longitude }}</td>
+                                    <td>{{ position.vitesse|default_if_none:"N/A" }}{% if position.vitesse is not None %} km/h{% endif %}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -63,10 +109,96 @@
 {% block scripts %}
 <script>
 const destination = JSON.parse('{{ destination_json|escapejs }}');
-const lat = destination.latitude || 14.6937;
-const lng = destination.longitude || -17.4441;
-const map = L.map('destination-map').setView([lat, lng], destination.latitude ? 15 : 12);
+const positions = JSON.parse('{{ positions_json|escapejs }}');
+const defaultCenter = [14.6937, -17.4441];
+const map = L.map('mission-map').setView(defaultCenter, 12);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
-if (destination.latitude) L.marker([lat, lng]).addTo(map).bindPopup(destination.client);
+
+const boundsItems = [];
+if (destination.latitude && destination.longitude) {
+    const destinationLatLng = [destination.latitude, destination.longitude];
+    L.marker(destinationLatLng).addTo(map).bindPopup(`Destination<br>${destination.client || ''}`);
+    boundsItems.push(destinationLatLng);
+}
+
+const path = positions.map((pos) => [pos.latitude, pos.longitude]);
+if (path.length > 1) {
+    L.polyline(path, { color: '#0d6efd', weight: 3, opacity: 0.65, lineJoin: 'round' }).addTo(map);
+}
+
+path.forEach((point) => {
+    L.circleMarker(point, {
+        radius: 3,
+        color: '#0d6efd',
+        fillColor: '#0d6efd',
+        fillOpacity: 0.55,
+        weight: 1
+    }).addTo(map);
+});
+
+const currentPosition = positions.length ? positions[positions.length - 1] : null;
+if (currentPosition) {
+    const currentLatLng = [currentPosition.latitude, currentPosition.longitude];
+    const vitesse = currentPosition.vitesse ?? 'N/A';
+    const vitesseText = vitesse === 'N/A' ? 'N/A' : `${vitesse} km/h`;
+    L.circleMarker(currentLatLng, {
+        radius: 8,
+        color: '#dc3545',
+        fillColor: '#dc3545',
+        fillOpacity: 0.9
+    }).addTo(map).bindPopup(`Position actuelle de la moto<br>${new Date(currentPosition.date_heure).toLocaleString()}<br>Vitesse: ${vitesseText}`);
+    boundsItems.push(currentLatLng);
+}
+
+function formatEstimatedPlace(data) {
+    const address = data.address || {};
+    const locality = address.suburb || address.neighbourhood || address.village || address.town || address.city || address.municipality;
+    const region = address.state || address.region || address.county || address.department;
+    const country = address.country;
+    const parts = [locality, region, country].filter(Boolean);
+    return parts.length ? parts.join(', ') : data.display_name;
+}
+
+async function updateEstimatedPlace(position) {
+    const placeElement = document.getElementById('current-place');
+    if (!placeElement || !position) return;
+
+    const fallback = `${position.latitude.toFixed(6)}, ${position.longitude.toFixed(6)}`;
+    const cacheKey = `mototrack-place-${position.latitude.toFixed(3)}-${position.longitude.toFixed(3)}`;
+    const cachedPlace = sessionStorage.getItem(cacheKey);
+    if (cachedPlace) {
+        placeElement.textContent = cachedPlace;
+        return;
+    }
+
+    try {
+        const url = new URL('https://nominatim.openstreetmap.org/reverse');
+        url.searchParams.set('format', 'jsonv2');
+        url.searchParams.set('lat', position.latitude);
+        url.searchParams.set('lon', position.longitude);
+        url.searchParams.set('zoom', '14');
+        url.searchParams.set('addressdetails', '1');
+        url.searchParams.set('accept-language', 'fr');
+        const response = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
+        if (!response.ok) throw new Error('Reverse geocoding unavailable');
+        const data = await response.json();
+        const place = formatEstimatedPlace(data) || fallback;
+        sessionStorage.setItem(cacheKey, place);
+        placeElement.textContent = place;
+    } catch (error) {
+        placeElement.textContent = fallback;
+    }
+}
+
+updateEstimatedPlace(currentPosition);
+
+path.forEach((point) => boundsItems.push(point));
+if (boundsItems.length) {
+    map.fitBounds(L.latLngBounds(boundsItems).pad(0.2));
+}
+
+setTimeout(() => {
+    window.location.reload();
+}, 10000);
 </script>
 {% endblock %}

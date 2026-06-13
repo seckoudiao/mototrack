@@ -64,6 +64,32 @@ class PositionAPITests(TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.json()["status"], "error")
 
+    def test_post_position_rejects_invalid_coordinates(self):
+        response = self.client.post(
+            reverse("api_position_create"),
+            data={"moto_id": self.moto.id, "latitude": 0, "longitude": 0},
+            content_type="application/json",
+            **self.api_headers,
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(PositionGPS.objects.count(), 0)
+
+    def test_post_position_ignores_abnormal_gps_jump(self):
+        PositionGPS.objects.create(moto=self.moto, latitude=14.7886, longitude=-16.9260)
+
+        response = self.client.post(
+            reverse("api_position_create"),
+            data={"moto_id": self.moto.id, "latitude": 14.95, "longitude": -16.70},
+            content_type="application/json",
+            **self.api_headers,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["status"], "ignored")
+        self.assertEqual(response.json()["message"], "Position ignoree : saut GPS anormal")
+        self.assertEqual(PositionGPS.objects.count(), 1)
+
     def test_speed_over_80_creates_alert(self):
         response = self.client.post(
             reverse("api_position_create"),
@@ -148,6 +174,11 @@ class WebPageTests(TestCase):
         self.assertContains(response, "Dashboard responsable")
 
     def test_validate_delivery_by_otp_finishes_mission(self):
+        self.mission.latitude_destination = 14.7
+        self.mission.longitude_destination = -17.4
+        self.mission.save(update_fields=["latitude_destination", "longitude_destination"])
+        PositionGPS.objects.create(moto=self.moto, latitude=14.7001, longitude=-17.4001)
+
         self.client.login(username="livreur", password="testpass123")
         response = self.client.post(
             reverse("livreur_validate_delivery", args=[self.mission.id]),
@@ -165,7 +196,7 @@ class WebPageTests(TestCase):
         self.assertEqual(self.mission.moto.etat, "disponible")
         preuve = PreuveLivraison.objects.get(mission=self.mission)
         self.assertTrue(preuve.otp_valide)
-        self.assertEqual(preuve.latitude_validation, 14.7)
+        self.assertEqual(preuve.latitude_validation, 14.7001)
 
     def test_validate_delivery_rejects_wrong_otp(self):
         self.client.login(username="livreur", password="testpass123")
@@ -178,3 +209,163 @@ class WebPageTests(TestCase):
         self.mission.refresh_from_db()
         self.assertEqual(self.mission.statut, "en_cours")
         self.assertFalse(PreuveLivraison.objects.filter(mission=self.mission).exists())
+
+    def test_validate_delivery_rejects_missing_gps_position(self):
+        self.mission.latitude_destination = 14.7
+        self.mission.longitude_destination = -17.4
+        self.mission.save(update_fields=["latitude_destination", "longitude_destination"])
+
+        self.client.login(username="livreur", password="testpass123")
+        response = self.client.post(
+            reverse("livreur_validate_delivery", args=[self.mission.id]),
+            data={"otp_code": self.mission.otp_code},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Aucune position GPS récente disponible pour cette moto.")
+        self.mission.refresh_from_db()
+        self.assertEqual(self.mission.statut, "en_cours")
+        self.assertFalse(PreuveLivraison.objects.filter(mission=self.mission).exists())
+
+    def test_validate_delivery_rejects_old_gps_position(self):
+        self.mission.latitude_destination = 14.7
+        self.mission.longitude_destination = -17.4
+        self.mission.save(update_fields=["latitude_destination", "longitude_destination"])
+        PositionGPS.objects.create(
+            moto=self.moto,
+            latitude=14.7001,
+            longitude=-17.4001,
+            date_heure=timezone.now() - timezone.timedelta(minutes=3),
+        )
+
+        self.client.login(username="livreur", password="testpass123")
+        response = self.client.post(
+            reverse("livreur_validate_delivery", args=[self.mission.id]),
+            data={"otp_code": self.mission.otp_code},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Position GPS trop ancienne pour valider la livraison.")
+        self.mission.refresh_from_db()
+        self.assertEqual(self.mission.statut, "en_cours")
+        self.assertFalse(PreuveLivraison.objects.filter(mission=self.mission).exists())
+
+    def test_validate_delivery_rejects_far_gps_position(self):
+        self.mission.latitude_destination = 14.7
+        self.mission.longitude_destination = -17.4
+        self.mission.save(update_fields=["latitude_destination", "longitude_destination"])
+        PositionGPS.objects.create(moto=self.moto, latitude=14.75, longitude=-17.45)
+
+        self.client.login(username="livreur", password="testpass123")
+        response = self.client.post(
+            reverse("livreur_validate_delivery", args=[self.mission.id]),
+            data={"otp_code": self.mission.otp_code},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Vous êtes trop éloigné de la destination pour valider cette livraison.")
+        self.mission.refresh_from_db()
+        self.assertEqual(self.mission.statut, "en_cours")
+        self.assertFalse(PreuveLivraison.objects.filter(mission=self.mission).exists())
+
+    def test_validate_delivery_rejects_missing_destination_gps(self):
+        PositionGPS.objects.create(moto=self.moto, latitude=14.7, longitude=-17.4)
+
+        self.client.login(username="livreur", password="testpass123")
+        response = self.client.post(
+            reverse("livreur_validate_delivery", args=[self.mission.id]),
+            data={"otp_code": self.mission.otp_code},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Destination GPS non renseignee pour cette mission.")
+        self.mission.refresh_from_db()
+        self.assertEqual(self.mission.statut, "en_cours")
+        self.assertFalse(PreuveLivraison.objects.filter(mission=self.mission).exists())
+
+    def test_mission_detail_tracks_positions_after_departure_only(self):
+        now = timezone.now()
+        depart = now - timezone.timedelta(minutes=10)
+        self.mission.date_depart = depart
+        self.mission.save(update_fields=["date_depart"])
+        PositionGPS.objects.create(
+            moto=self.moto,
+            latitude=13.0,
+            longitude=-15.0,
+            date_heure=depart - timezone.timedelta(minutes=5),
+        )
+        PositionGPS.objects.create(
+            moto=self.moto,
+            latitude=14.1,
+            longitude=-16.1,
+            date_heure=depart + timezone.timedelta(minutes=1),
+        )
+        PositionGPS.objects.create(
+            moto=self.moto,
+            latitude=14.2,
+            longitude=-16.2,
+            date_heure=now - timezone.timedelta(seconds=10),
+        )
+
+        self.client.login(username="responsable", password="testpass123")
+        response = self.client.get(reverse("mission_detail", args=[self.mission.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Suivi GPS de la mission")
+        self.assertContains(response, "Lieu actuel estime")
+        self.assertContains(response, "Statut GPS")
+        self.assertContains(response, "En ligne")
+        self.assertContains(response, "Derniere position recue il y a")
+        self.assertContains(response, "Voir donnees techniques")
+        self.assertNotContains(response, "Coordonnees GPS:")
+        self.assertContains(response, "Trajet GPS estime a partir des positions recues")
+        positions = response.context["positions"]
+        self.assertEqual(len(positions), 2)
+        self.assertEqual(positions[0].latitude, 14.1)
+        self.assertEqual(response.context["latest_position"].latitude, 14.2)
+        self.assertEqual(response.context["gps_status"]["label"], "En ligne")
+
+    def test_mission_detail_without_departure_has_no_track_positions(self):
+        self.mission.date_depart = None
+        self.mission.save(update_fields=["date_depart"])
+        PositionGPS.objects.create(moto=self.moto, latitude=14.1, longitude=-16.1)
+
+        self.client.login(username="responsable", password="testpass123")
+        response = self.client.get(reverse("mission_detail", args=[self.mission.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "La mission n'a pas encore demarre.")
+        self.assertEqual(response.context["positions"], [])
+
+    def test_livreur_mission_detail_shows_tracking_after_departure(self):
+        now = timezone.now()
+        depart = now - timezone.timedelta(minutes=3)
+        self.mission.date_depart = depart
+        self.mission.save(update_fields=["date_depart"])
+        PositionGPS.objects.create(
+            moto=self.moto,
+            latitude=14.1,
+            longitude=-16.1,
+            date_heure=depart + timezone.timedelta(seconds=10),
+        )
+
+        self.client.login(username="livreur", password="testpass123")
+        response = self.client.get(reverse("livreur_mission_detail", args=[self.mission.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Suivi GPS de la mission")
+        self.assertContains(response, "Lieu actuel estime")
+        self.assertContains(response, "Statut GPS")
+        self.assertEqual(len(response.context["positions"]), 1)
+
+    def test_livreur_mission_detail_before_departure_prompts_start(self):
+        self.mission.date_depart = None
+        self.mission.save(update_fields=["date_depart"])
+        PositionGPS.objects.create(moto=self.moto, latitude=14.1, longitude=-16.1)
+
+        self.client.login(username="livreur", password="testpass123")
+        response = self.client.get(reverse("livreur_mission_detail", args=[self.mission.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Demarrez la mission pour commencer le suivi GPS.")
+        self.assertEqual(response.context["positions"], [])

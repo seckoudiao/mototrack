@@ -152,6 +152,12 @@ const char* serverUrl = "http://192.168.1.20:8000/api/positions/";
 
 Le sketch envoie le header `X-API-KEY`.
 
+## Suivi GPS et trajet
+
+Dans le detail mission responsable, la carte affiche la destination, la position actuelle de la moto et un trajet GPS estime. Le trace suit les points GPS transmis par le dispositif ESP32 + GPS NEO-6M. Pour afficher exactement les routes empruntees, une amelioration future pourra integrer un service de map matching ou de routing comme OSRM ou OpenRouteService.
+
+L'API ignore les points GPS incoherents pour eviter les faux trajets: coordonnees hors limites, point `0,0`, ou saut de plus de 2 km recu moins de 20 secondes apres la position precedente.
+
 ## Livraison et OTP
 
 La validation de livraison se fait uniquement par OTP:
