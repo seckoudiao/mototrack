@@ -172,25 +172,33 @@ Aucun SMS ni signature n'est utilise dans cette version.
 
 ## Deploiement Render
 
-Fichiers deja presents:
+Build command:
 
-- `Procfile`
-- `build.sh`
-- `requirements.txt`
-- configuration Whitenoise dans `backend/settings.py`
+```bash
+./build.sh
+```
 
-Variables Render recommandees:
+Start command:
+
+```bash
+gunicorn backend.wsgi:application
+```
+
+Variables d'environnement Render:
 
 ```text
 SECRET_KEY=une-cle-secrete-forte
 DEBUG=False
-ALLOWED_HOSTS=votre-app.onrender.com
+ALLOWED_HOSTS=mototrack.onrender.com,localhost,127.0.0.1
+CSRF_TRUSTED_ORIGINS=https://mototrack.onrender.com
 DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DATABASE
 ESP32_API_KEY=une-cle-api-forte
 SUPABASE_BUCKET=media
 ```
 
-`build.sh` installe les dependances, collecte les fichiers statiques et applique les migrations.
+`build.sh` installe les dependances, collecte les fichiers statiques et applique les migrations. Ne pas mettre le fichier `.env` sur GitHub. La variable `DATABASE_URL` Supabase doit contenir un mot de passe encode si celui-ci contient des caracteres speciaux.
+
+Les photos livreurs sont optionnelles et ne sont pas prioritaires pour le prototype en production.
 
 ## Configuration Supabase
 

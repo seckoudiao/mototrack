@@ -12,6 +12,7 @@ SECRET_KEY = env("SECRET_KEY", default="change-moi")
 DEBUG = env("DEBUG", default=True)
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
 ESP32_API_KEY = env("ESP32_API_KEY", default="mototrack-baol-express-2026")
 SUPABASE_BUCKET = env("SUPABASE_BUCKET", default="media")
 
